@@ -1,8 +1,5 @@
 // lazy-prep.js
 
-/**
- * Generate a rich summary for a player-owned actor.
- */
 function generateActorSummary(actor) {
   const level = actor.system?.details?.level ?? "—";
   const hp = actor.system?.attributes?.hp;
@@ -44,9 +41,6 @@ function generateActorSummary(actor) {
   `;
 }
 
-/**
- * Create the next Lazy DM session journal with 8 prep pages.
- */
 async function createNextLazySession() {
   const folderName = "Session Prep";
   const folderColor = "#C4C3D0";
@@ -75,11 +69,14 @@ async function createNextLazySession() {
 
   const sessionName = `Session ${nextSessionNumber}`;
 
-  const journal = await JournalEntry.create({
+  const journalData = await JournalEntry.create({
     name: sessionName,
     folder: folder.id,
     content: `<p>This journal contains prep pages for ${sessionName}.</p>`
   });
+
+  // Refetch the journal to ensure it's ready
+  const journal = game.journal.get(journalData.id);
 
   const lazySteps = [
     "Review the Characters",
@@ -113,12 +110,10 @@ async function createNextLazySession() {
 
   await journal.createEmbeddedDocuments("JournalEntryPage", pages);
 
+  console.log(`✅ Created '${sessionName}' with Lazy DM pages.`);
   ui.notifications.info(`✅ Created '${sessionName}' with Lazy DM pages.`);
 }
 
-/**
- * Automatically creates a macro for the Lazy Prep workflow.
- */
 async function createLazyPrepMacro() {
   const macroName = "Create Next Lazy Session";
 
@@ -137,9 +132,6 @@ async function createLazyPrepMacro() {
   }
 }
 
-/**
- * Hook that runs when Foundry is ready.
- */
 Hooks.once("ready", async () => {
   console.log("Lazy Prep module loaded.");
   await createLazyPrepMacro();
