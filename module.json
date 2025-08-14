@@ -2,7 +2,7 @@
   "id": "lazy-prep",
   "title": "Lazy Prep",
   "description": "Creates a 'Session 0' journal entry inside a 'Session Prep' folder on startup.",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "compatibility": {
     "minimum": "13.0.0",
     "verified": "13.347"
@@ -18,5 +18,13 @@
     "minimumCoreVersion": "13.0.0",
     "compatibleCoreVersion": "13.999",
     "system": "dnd5e"
+  },
+  "flags": {
+    "lazy-prep": {
+      "templateVersion": "1.0",
+      "autoCreateJournal": true,
+      "defaultFolderName": "Session Prep",
+      "defaultJournalName": "Session 0"
+    }
   }
 }
