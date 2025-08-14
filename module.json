@@ -1,5 +1,5 @@
 {
-  "id": "lazy-prep",  // ✅ This is the missing field
+  "id": "lazy-prep",
   "name": "lazy-prep",
   "title": "Lazy Prep",
   "description": "Creates a 'Session Prep' journal entry on startup.",
