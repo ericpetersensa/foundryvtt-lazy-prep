@@ -1,0 +1,15 @@
+{
+  "name": "lazy-prep",
+  "title": "Lazy Prep",
+  "description": "Creates a 'Session Prep' journal entry on startup.",
+  "version": "0.0.1",
+  "author": "Eric & Copilot",
+  "minimumCoreVersion": "13",
+  "compatibleCoreVersion": "13",
+  "esmodules": ["scripts/lazy-prep.js"],
+  "styles": [],
+  "packs": [],
+  "system": "dnd5e",
+  "manifest": "https://raw.githubusercontent.com/YOUR_USERNAME/foundryvtt-lazy-prep/main/module.json",
+  "download": "https://github.com/YOUR_USERNAME/foundryvtt-lazy-prep/archive/refs/heads/main.zip"
+}
