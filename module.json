@@ -3,7 +3,7 @@
   "name": "lazy-prep",
   "title": "Lazy Prep",
   "description": "Creates a 'Session Prep' journal entry on startup.",
-  "version": "0.0.2",
+  "version": "0.0.25",
   "author": "Eric & Copilot",
   "minimumCoreVersion": "13.0.0",
   "compatibleCoreVersion": "13.999",
