@@ -65,36 +65,58 @@ async function createNextLazySession() {
 
   // Safely enhance "Review the Characters" page
   try {
-    const characterPage = createdPages.find(p => p.name === "Review the Characters");
-    if (characterPage) {
-      const playerActors = game.actors.filter(actor => actor.hasPlayerOwner);
-      const actorSummaries = playerActors.map(actor => {
-        const name = actor.name ?? "Unnamed";
-        const level = actor.system?.details?.level ?? "—";
-        const hp = actor.system?.attributes?.hp;
-        const ac = actor.system?.attributes?.ac?.value ?? "—";
-        return `
-          <h3>${name}</h3>
-          <ul>
-            <li><strong>Level:</strong> ${level}</li>
-            <li><strong>HP:</strong> ${hp?.value ?? "—"} / ${hp?.max ?? "—"}</li>
-            <li><strong>AC:</strong> ${ac}</li>
-          </ul>
-          <hr>
-        `;
-      }).join("");
+  const characterPage = createdPages.find(p => p.name === "Review the Characters");
+  if (characterPage) {
+    const playerActors = game.actors.filter(actor => actor.hasPlayerOwner);
+    const actorSummaries = playerActors.map(actor => {
+      const name = actor.name ?? "Unnamed";
+      const level = actor.system?.details?.level ?? "—";
+      const hp = actor.system?.attributes?.hp;
+      const ac = actor.system?.attributes?.ac?.value ?? "—";
 
-      const updatedContent = `
-        <h2>Review the Characters</h2>
-        <p>This page summarizes key details for each player character.</p>
-        ${actorSummaries}
+      // Class & Background
+      const classItem = actor.items.find(i => i.type === "class");
+      const className = classItem?.name ?? "—";
+
+      const backgroundItem = actor.items.find(i => i.type === "background");
+      const backgroundName = backgroundItem?.name ?? "—";
+
+      // Skills
+      const skills = actor.system?.skills ?? {};
+      const skillList = Object.entries(skills)
+        .map(([key, data]) => `${key.toUpperCase()}: ${data.mod}`)
+        .join(", ");
+
+      // Languages
+      const langKeys = actor.system?.traits?.languages?.value ?? [];
+      const langList = langKeys.length > 0 ? langKeys.join(", ") : "—";
+
+      return `
+        <h3>${name}</h3>
+        <ul>
+          <li><strong>Level:</strong> ${level}</li>
+          <li><strong>Class:</strong> ${className}</li>
+          <li><strong>Background:</strong> ${backgroundName}</li>
+          <li><strong>HP:</strong> ${hp?.value ?? "—"} / ${hp?.max ?? "—"}</li>
+          <li><strong>AC:</strong> ${ac}</li>
+          <li><strong>Skills:</strong> ${skillList}</li>
+          <li><strong>Languages:</strong> ${langList}</li>
+        </ul>
+        <hr>
       `;
+    }).join("");
 
-      await characterPage.update({ "text.content": updatedContent });
-    }
-  } catch (err) {
-    console.warn("⚠️ Failed to enhance 'Review the Characters' page:", err);
+    const updatedContent = `
+      <h2>Review the Characters</h2>
+      <p>This page summarizes key details for each player character.</p>
+      ${actorSummaries}
+    `;
+
+    await characterPage.update({ "text.content": updatedContent });
   }
+} catch (err) {
+  console.warn("⚠️ Failed to enhance 'Review the Characters' page:", err);
+}
 
   ui.notifications.info(`✅ Created '${sessionName}' with Lazy DM pages.`);
 }
