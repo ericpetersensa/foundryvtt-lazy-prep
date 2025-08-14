@@ -5,7 +5,7 @@
   "version": "0.0.3",
   "compatibility": {
     "minimum": "13.0.0",
-    "verified": "13.341"
+    "verified": "13.347"
   },
   "esmodules": ["scripts/lazy-prep.js"],
   "styles": [],
