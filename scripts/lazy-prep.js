@@ -1,50 +1,13 @@
 // lazy-prep.js
 
-function generateActorSummary(actor) {
-  const level = actor.system?.details?.level ?? "—";
-  const hp = actor.system?.attributes?.hp;
-  const ac = actor.system?.attributes?.ac?.value ?? "—";
-  const pp = actor.system?.skills?.prc?.passive ?? "—";
-
-  const classItem = actor.items.find(i => i.type === "class");
-  const className = classItem?.name ?? "—";
-  const subclass = classItem?.system?.subclass ?? "";
-
-  const backgroundItem = actor.items.find(i => i.type === "background");
-  const background = backgroundItem?.name ?? "—";
-
-  const skills = Object.entries(actor.system?.skills ?? {})
-    .filter(([_, data]) => data.proficient > 0)
-    .map(([key]) => key.toUpperCase())
-    .join(", ") || "None";
-
-  const languages = actor.system?.traits?.languages?.value?.join(", ") || "None";
-
-  const spotlight = actor.flags["lazy-prep"]?.lastSpotlight ?? "—";
-  const lastSeen = actor.flags["lazy-prep"]?.lastSeen ?? "—";
-
-  return `
-    <h3>${actor.name}</h3>
-    <ul>
-      <li><strong>Class:</strong> ${className}${subclass ? ` (${subclass})` : ""}</li>
-      <li><strong>Level:</strong> ${level}</li>
-      <li><strong>HP:</strong> ${hp?.value ?? "—"} / ${hp?.max ?? "—"}</li>
-      <li><strong>AC:</strong> ${ac}</li>
-      <li><strong>PP:</strong> ${pp}</li>
-      <li><strong>Skills:</strong> ${skills}</li>
-      <li><strong>Languages:</strong> ${languages}</li>
-      <li><strong>Background:</strong> ${background}</li>
-      <li><strong>Last Spotlight:</strong> ${spotlight}</li>
-      <li><strong>Last Seen:</strong> ${lastSeen}</li>
-    </ul>
-    <hr>
-  `;
-}
-
+/**
+ * Create the next Lazy DM session journal with 8 prep pages.
+ */
 async function createNextLazySession() {
   const folderName = "Session Prep";
   const folderColor = "#C4C3D0";
 
+  // Find or create the folder
   let folder = game.folders.find(f => f.name === folderName && f.type === "JournalEntry");
   if (!folder) {
     folder = await Folder.create({
@@ -55,10 +18,12 @@ async function createNextLazySession() {
     });
   }
 
+  // Find existing session journals in the folder
   const sessionJournals = game.journal.filter(j =>
     j.folder?.id === folder.id && /^Session \d+$/.test(j.name)
   );
 
+  // Extract session numbers
   const sessionNumbers = sessionJournals.map(j =>
     parseInt(j.name.replace("Session ", ""), 10)
   );
@@ -69,15 +34,14 @@ async function createNextLazySession() {
 
   const sessionName = `Session ${nextSessionNumber}`;
 
+  // Create journal entry
   const journal = await JournalEntry.create({
     name: sessionName,
     folder: folder.id,
     content: `<p>This journal contains prep pages for ${sessionName}.</p>`
   });
 
-  // Optional delay to ensure journal is ready
-  await new Promise(resolve => setTimeout(resolve, 100));
-
+  // Add Lazy DM pages
   const lazySteps = [
     "Review the Characters",
     "Create a Strong Start",
@@ -89,33 +53,27 @@ async function createNextLazySession() {
     "Select Magic Items"
   ];
 
-  const playerActors = game.actors.filter(actor => actor.hasPlayerOwner);
-  const actorSummaries = playerActors.map(generateActorSummary).join("");
-
-  const pages = lazySteps.map(step => {
-    const isCharacterPage = step === "Review the Characters";
-    const content = isCharacterPage
-      ? `<h2>${step}</h2><p>This page summarizes key details for each player character.</p>${actorSummaries}`
-      : `<h2>${step}</h2><p>Use this space to plan your '${step.toLowerCase()}' step.</p>`;
-
-    return {
-      name: step,
-      type: "text",
-      text: {
-        format: 1,
-        content
-      }
-    };
-  });
+  const pages = lazySteps.map(step => ({
+    name: step,
+    type: "text",
+    text: {
+      format: 1,
+      content: `<h2>${step}</h2><p>Use this space to plan your '${step.toLowerCase()}' step.</p>`
+    }
+  }));
 
   await journal.createEmbeddedDocuments("JournalEntryPage", pages);
 
   ui.notifications.info(`✅ Created '${sessionName}' with Lazy DM pages.`);
 }
 
+/**
+ * Automatically creates a macro for the Lazy Prep workflow.
+ */
 async function createLazyPrepMacro() {
   const macroName = "Create Next Lazy Session";
 
+  // Check if macro already exists
   let macro = game.macros.find(m => m.name === macroName);
   if (!macro) {
     macro = await Macro.create({
@@ -131,10 +89,14 @@ async function createLazyPrepMacro() {
   }
 }
 
+/**
+ * Hook that runs when Foundry is ready.
+ */
 Hooks.once("ready", async () => {
   console.log("Lazy Prep module loaded.");
   await createLazyPrepMacro();
 
+  // Create Session 0 on first load if it doesn't exist
   const sessionZero = game.journal.find(j => j.name === "Session 0");
   if (!sessionZero) {
     await createNextLazySession(); // Will create Session 0 first
