@@ -69,14 +69,14 @@ async function createNextLazySession() {
 
   const sessionName = `Session ${nextSessionNumber}`;
 
-  const journalData = await JournalEntry.create({
+  const journal = await JournalEntry.create({
     name: sessionName,
     folder: folder.id,
     content: `<p>This journal contains prep pages for ${sessionName}.</p>`
   });
 
-  // Refetch the journal to ensure it's ready
-  const journal = game.journal.get(journalData.id);
+  // Optional delay to ensure journal is ready
+  await new Promise(resolve => setTimeout(resolve, 100));
 
   const lazySteps = [
     "Review the Characters",
@@ -110,7 +110,6 @@ async function createNextLazySession() {
 
   await journal.createEmbeddedDocuments("JournalEntryPage", pages);
 
-  console.log(`✅ Created '${sessionName}' with Lazy DM pages.`);
   ui.notifications.info(`✅ Created '${sessionName}' with Lazy DM pages.`);
 }
 
