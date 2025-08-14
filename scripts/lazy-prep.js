@@ -1,50 +1,62 @@
-Hooks.once("ready", async () => {
+async function createNextLazySession() {
   const folderName = "Session Prep";
-  const journalName = "Session 0";
 
-  // Create folder if needed
+  // Find or create the folder
   let folder = game.folders.find(f => f.name === folderName && f.type === "JournalEntry");
   if (!folder) {
     folder = await Folder.create({
       name: folderName,
       type: "JournalEntry",
       parent: null,
-      color: "#C4C3D0"  // Lavender Gray
+      color: "#C4C3D0"
     });
   }
 
-  // Create journal entry if needed
-  let journal = game.journal.find(j => j.name === journalName);
-  if (!journal) {
-    journal = await JournalEntry.create({
-      name: journalName,
-      folder: folder.id,
-      content: "<p>This journal contains prep pages for Session 0.</p>"
-    });
+  // Find existing session journals in the folder
+  const sessionJournals = game.journal.filter(j =>
+    j.folder?.id === folder.id && /^Session \d+$/.test(j.name)
+  );
 
-    // Create pages for each Lazy DM step
-    const lazySteps = [
-      "Review the Characters",
-      "Create a Strong Start",
-      "Outline Potential Scenes",
-      "Define Secrets and Clues",
-      "Develop Fantastic Locations",
-      "Outline Important NPCs",
-      "Choose Relevant Monsters",
-      "Select Magic Items"
-    ];
+  // Extract session numbers
+  const sessionNumbers = sessionJournals.map(j =>
+    parseInt(j.name.replace("Session ", ""), 10)
+  );
 
-    for (const step of lazySteps) {
-      await journal.createEmbeddedDocuments("JournalEntryPage", [{
-        name: step,
-        type: "text",
-        text: {
-          format: 1, // HTML
-          content: `<h2>${step}</h2><p>Use this space to plan your '${step.toLowerCase()}' step.</p>`
-        }
-      }]);
+  const nextSessionNumber = sessionNumbers.length
+    ? Math.max(...sessionNumbers) + 1
+    : 0;
+
+  const sessionName = `Session ${nextSessionNumber}`;
+
+  // Create journal entry
+  const journal = await JournalEntry.create({
+    name: sessionName,
+    folder: folder.id,
+    content: `<p>This journal contains prep pages for ${sessionName}.</p>`
+  });
+
+  // Add Lazy DM pages
+  const lazySteps = [
+    "Review the Characters",
+    "Create a Strong Start",
+    "Outline Potential Scenes",
+    "Define Secrets and Clues",
+    "Develop Fantastic Locations",
+    "Outline Important NPCs",
+    "Choose Relevant Monsters",
+    "Select Magic Items"
+  ];
+
+  const pages = lazySteps.map(step => ({
+    name: step,
+    type: "text",
+    text: {
+      format: 1,
+      content: `<h2>${step}</h2><p>Use this space to plan your '${step.toLowerCase()}' step.</p>`
     }
+  }));
 
-    console.log(`Created journal entry '${journalName}' with Lazy DM pages.`);
-  }
-});
+  await journal.createEmbeddedDocuments("JournalEntryPage", pages);
+
+  ui.notifications.info(`Created '${sessionName}' with Lazy DM pages.`);
+}
