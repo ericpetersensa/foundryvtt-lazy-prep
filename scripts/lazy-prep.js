@@ -81,15 +81,11 @@ async function createNextLazySession() {
       const backgroundItem = actor.items.find(i => i.type === "background");
       const backgroundName = backgroundItem?.name ?? "—";
 
-      // Skills
-      const skills = actor.system?.skills ?? {};
-      const skillList = Object.entries(skills)
-        .map(([key, data]) => `${key.toUpperCase()}: ${data.mod}`)
-        .join(", ");
-
       // Languages
       const langKeys = actor.system?.traits?.languages?.value ?? [];
-      const langList = langKeys.length > 0 ? langKeys.join(", ") : "—";
+      const langList = langKeys.length > 0
+        ? langKeys.map(key => CONFIG.DND5E.languages[key] ?? key).join(", ")
+        : "—";
 
       return `
         <h3>${name}</h3>
@@ -99,7 +95,6 @@ async function createNextLazySession() {
           <li><strong>Background:</strong> ${backgroundName}</li>
           <li><strong>HP:</strong> ${hp?.value ?? "—"} / ${hp?.max ?? "—"}</li>
           <li><strong>AC:</strong> ${ac}</li>
-          <li><strong>Skills:</strong> ${skillList}</li>
           <li><strong>Languages:</strong> ${langList}</li>
         </ul>
         <hr>
@@ -116,9 +111,6 @@ async function createNextLazySession() {
   }
 } catch (err) {
   console.warn("⚠️ Failed to enhance 'Review the Characters' page:", err);
-}
-
-  ui.notifications.info(`✅ Created '${sessionName}' with Lazy DM pages.`);
 }
 
 /**
