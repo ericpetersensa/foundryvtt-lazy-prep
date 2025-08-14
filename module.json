@@ -5,8 +5,12 @@
   "description": "Creates a 'Session Prep' journal entry on startup.",
   "version": "0.0.1",
   "author": "Eric & Copilot",
-  "minimumCoreVersion": "13",
-  "compatibleCoreVersion": "13",
+  "minimumCoreVersion": "13.0.0",
+  "compatibleCoreVersion": "13.999",
+  "compatibility": {
+    "minimum": "13.0.0",
+    "verified": "13.347"
+  },
   "esmodules": ["scripts/lazy-prep.js"],
   "styles": [],
   "packs": [],
