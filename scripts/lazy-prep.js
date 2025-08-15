@@ -125,13 +125,13 @@ async function createLazyPrepMacro() {
   let macro = game.macros.find(m => m.name === macroName);
   if (!macro) {
     macro = await Macro.create({
-      name: macroName,
-      type: "script",
-      scope: "global",
-      command: createNextLazySession.toString() + "\ncreateNextLazySession();",
-      img: "icons/skills/social/diplomacy-handshake.webp",
-      flags: { "lazy-prep": { autoCreated: true } }
-    });
+  name: macroName,
+  type: "script",
+  scope: "global",
+  command: "createNextLazySession();",
+  img: "icons/skills/social/diplomacy-handshake.webp",
+  flags: { "lazy-prep": { autoCreated: true } }
+});
 
     ui.notifications.info(`Macro '${macroName}' created. Drag it to your hotbar!`);
   }
