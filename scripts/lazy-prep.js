@@ -84,7 +84,7 @@ try {
         <ul>
           <li><strong>HP:</strong> ${hp?.value ?? "—"} / ${hp?.max ?? "—"}</li>
           <li><strong>AC:</strong> ${ac}</li>
-          <li><strong>Passive Perception:</strong> ${passive}</li>
+          <li><strong>PP:</strong> ${passive}</li>
         </ul>
         <hr>
       `;
