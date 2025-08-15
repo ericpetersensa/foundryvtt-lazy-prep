@@ -64,54 +64,37 @@ async function createNextLazySession() {
   const createdPages = await journal.createEmbeddedDocuments("JournalEntryPage", pages);
 
   // Safely enhance "Review the Characters" page
-try {
-  const characterPage = createdPages.find(p => p.name === "Review the Characters");
-  if (characterPage) {
-    const playerActors = game.actors.filter(actor => actor.hasPlayerOwner);
-    const actorSummaries = playerActors.map(actor => {
-  const level = actor.system?.details?.level ?? "—";
-  const hp = actor.system?.attributes?.hp;
-  const ac = actor.system?.attributes?.ac?.value ?? "—";
-  const passive = actor.system?.skills?.prc?.passive ?? "—";
+  try {
+    const characterPage = createdPages.find(p => p.name === "Review the Characters");
+    if (characterPage) {
+      const playerActors = game.actors.filter(actor => actor.hasPlayerOwner);
+      const actorSummaries = playerActors.map(actor => {
+        const name = actor.name ?? "Unnamed";
+        const level = actor.system?.details?.level ?? "—";
+        const hp = actor.system?.attributes?.hp;
+        const ac = actor.system?.attributes?.ac?.value ?? "—";
+        return `
+          <h3>${name}</h3>
+          <ul>
+            <li><strong>Level:</strong> ${level}</li>
+            <li><strong>HP:</strong> ${hp?.value ?? "—"} / ${hp?.max ?? "—"}</li>
+            <li><strong>AC:</strong> ${ac}</li>
+          </ul>
+          <hr>
+        `;
+      }).join("");
 
-  const classItem = actor.items.find(i => i.type === "class");
-  const className = classItem?.name ?? "—";
+      const updatedContent = `
+        <h2>Review the Characters</h2>
+        <p>This page summarizes key details for each player character.</p>
+        ${actorSummaries}
+      `;
 
-  const nameLine = `${actor.name ?? "Unnamed"} (Level ${level} ${className})`;
-
-  return `
-    <h3>${nameLine}</h3>
-    <table style="width: 100%; border-collapse: collapse;">
-      <thead>
-        <tr>
-          <th style="text-align: left;">HP</th>
-          <th style="text-align: left;">AC</th>
-          <th style="text-align: left;">PP</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>${hp?.value ?? "—"} / ${hp?.max ?? "—"}</td>
-          <td>${ac}</td>
-          <td>${passive}</td>
-        </tr>
-      </tbody>
-    </table>
-    <hr>
-  `;
-}).join("");
-
-    const updatedContent = `
-      <h2>Review the Characters</h2>
-      <p>This page summarizes key details for each player character.</p>
-      ${actorSummaries}
-    `;
-
-    await characterPage.update({ "text.content": updatedContent });
+      await characterPage.update({ "text.content": updatedContent });
+    }
+  } catch (err) {
+    console.warn("⚠️ Failed to enhance 'Review the Characters' page:", err);
   }
-} catch (err) {
-  console.warn("⚠️ Failed to enhance 'Review the Characters' page:", err);
-}
 
   ui.notifications.info(`✅ Created '${sessionName}' with Lazy DM pages.`);
 }
@@ -125,13 +108,13 @@ async function createLazyPrepMacro() {
   let macro = game.macros.find(m => m.name === macroName);
   if (!macro) {
     macro = await Macro.create({
-  name: macroName,
-  type: "script",
-  scope: "global",
-  command: "createNextLazySession();",
-  img: "icons/skills/social/diplomacy-handshake.webp",
-  flags: { "lazy-prep": { autoCreated: true } }
-});
+      name: macroName,
+      type: "script",
+      scope: "global",
+      command: createNextLazySession.toString() + "\ncreateNextLazySession();",
+      img: "icons/skills/social/diplomacy-handshake.webp",
+      flags: { "lazy-prep": { autoCreated: true } }
+    });
 
     ui.notifications.info(`Macro '${macroName}' created. Drag it to your hotbar!`);
   }
