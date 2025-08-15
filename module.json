@@ -1,6 +1,6 @@
 {
   "id": "lazy-prep",
-  "title": "Lazy Prep",
+  "title": "Lazy GM Prep",
   "description": "Creates a 'Session 0' journal entry inside a 'Session Prep' folder on startup.",
   "version": "0.0.49",
   "compatibility": {
