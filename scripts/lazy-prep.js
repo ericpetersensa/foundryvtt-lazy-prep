@@ -67,23 +67,33 @@ async function createNextLazySession() {
 try {
   const characterPage = createdPages.find(p => p.name === "Review the Characters");
   if (characterPage) {
+    const classColors = {
+      Barbarian: "#d32f2f",
+      Bard: "#7b1fa2",
+      Cleric: "#1976d2",
+      Druid: "#388e3c",
+      Fighter: "#455a64",
+      Monk: "#fbc02d",
+      Paladin: "#c2185b",
+      Ranger: "#2e7d32",
+      Rogue: "#616161",
+      Sorcerer: "#e64a19",
+      Warlock: "#5d4037",
+      Wizard: "#0288d1"
+    };
+
     const playerActors = game.actors.filter(actor => actor.hasPlayerOwner);
     const actorSummaries = playerActors.map(actor => {
+      const name = actor.name ?? "Unnamed";
       const level = actor.system?.details?.level ?? "—";
-
-      // Class & Subclass
-      const classItem = actor.items.find(i => i.type === "class");
-      const className = classItem?.name ?? "—";
-      const subclassName = classItem?.system?.subclass ?? "";
-
-      const classSummary = subclassName
-        ? `${subclassName} ${className}`
-        : className;
-
-      const nameLine = `${actor.name ?? "Unnamed"} (Level ${level} ${classSummary})`;
-
       const hp = actor.system?.attributes?.hp;
       const ac = actor.system?.attributes?.ac?.value ?? "—";
+
+      const classItem = actor.items.find(i => i.type === "class");
+      const className = classItem?.name ?? "—";
+      const classColor = classColors[className] ?? "#444";
+
+      const nameLine = `<span style="font-weight:bold;">${name}</span> <span style="color:${classColor}; font-weight:bold;">(Level ${level} ${className})</span>`;
 
       return `
         <h3>${nameLine}</h3>
@@ -106,7 +116,6 @@ try {
 } catch (err) {
   console.warn("⚠️ Failed to enhance 'Review the Characters' page:", err);
 }
-
   ui.notifications.info(`✅ Created '${sessionName}' with Lazy DM pages.`);
 }
 
