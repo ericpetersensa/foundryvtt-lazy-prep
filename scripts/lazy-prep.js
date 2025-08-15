@@ -69,26 +69,37 @@ try {
   if (characterPage) {
     const playerActors = game.actors.filter(actor => actor.hasPlayerOwner);
     const actorSummaries = playerActors.map(actor => {
-      const level = actor.system?.details?.level ?? "—";
-      const hp = actor.system?.attributes?.hp;
-      const ac = actor.system?.attributes?.ac?.value ?? "—";
-      const passive = actor.system?.skills?.prc?.passive ?? "—";
+  const level = actor.system?.details?.level ?? "—";
+  const hp = actor.system?.attributes?.hp;
+  const ac = actor.system?.attributes?.ac?.value ?? "—";
+  const passive = actor.system?.skills?.prc?.passive ?? "—";
 
-      const classItem = actor.items.find(i => i.type === "class");
-      const className = classItem?.name ?? "—";
+  const classItem = actor.items.find(i => i.type === "class");
+  const className = classItem?.name ?? "—";
 
-      const nameLine = `${actor.name ?? "Unnamed"} (Level ${level} ${className})`;
+  const nameLine = `${actor.name ?? "Unnamed"} (Level ${level} ${className})`;
 
-      return `
-        <h3>${nameLine}</h3>
-        <ul>
-          <li><strong>HP:</strong> ${hp?.value ?? "—"} / ${hp?.max ?? "—"}</li>
-          <li><strong>AC:</strong> ${ac}</li>
-          <li><strong>PP:</strong> ${passive}</li>
-        </ul>
-        <hr>
-      `;
-    }).join("");
+  return `
+    <h3>${nameLine}</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th style="text-align: left;">HP</th>
+          <th style="text-align: left;">AC</th>
+          <th style="text-align: left;">PP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>${hp?.value ?? "—"} / ${hp?.max ?? "—"}</td>
+          <td>${ac}</td>
+          <td>${passive}</td>
+        </tr>
+      </tbody>
+    </table>
+    <hr>
+  `;
+}).join("");
 
     const updatedContent = `
       <h2>Review the Characters</h2>
