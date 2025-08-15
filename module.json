@@ -2,7 +2,7 @@
   "id": "lazy-prep",
   "title": "Lazy GM Prep",
   "description": "Creates a Journal with the 8 Lazy GM Steps by Michael E. Shea.",
-  "version": "0.0.54",
+  "version": "0.0.55",
   "compatibility": {
     "minimum": "13.0.0",
     "verified": "13.347"
