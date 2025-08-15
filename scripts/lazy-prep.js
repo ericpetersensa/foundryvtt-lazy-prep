@@ -5,7 +5,7 @@
  */
 async function createNextLazySession() {
   const folderName = "Session Prep";
-  const folderColor = "#C4C3D0";
+  const folderColor = "#7f7d99";
 
   // Find or create the folder
   let folder = game.folders.find(f => f.name === folderName && f.type === "JournalEntry");
