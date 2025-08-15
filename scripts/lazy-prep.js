@@ -64,58 +64,38 @@ async function createNextLazySession() {
   const createdPages = await journal.createEmbeddedDocuments("JournalEntryPage", pages);
 
   // Safely enhance "Review the Characters" page
-try {
-  const characterPage = createdPages.find(p => p.name === "Review the Characters");
-  if (characterPage) {
-    const classColors = {
-      Barbarian: "#d32f2f",
-      Bard: "#7b1fa2",
-      Cleric: "#1976d2",
-      Druid: "#388e3c",
-      Fighter: "#455a64",
-      Monk: "#fbc02d",
-      Paladin: "#c2185b",
-      Ranger: "#2e7d32",
-      Rogue: "#616161",
-      Sorcerer: "#e64a19",
-      Warlock: "#5d4037",
-      Wizard: "#0288d1"
-    };
+  try {
+    const characterPage = createdPages.find(p => p.name === "Review the Characters");
+    if (characterPage) {
+      const playerActors = game.actors.filter(actor => actor.hasPlayerOwner);
+      const actorSummaries = playerActors.map(actor => {
+        const name = actor.name ?? "Unnamed";
+        const level = actor.system?.details?.level ?? "—";
+        const hp = actor.system?.attributes?.hp;
+        const ac = actor.system?.attributes?.ac?.value ?? "—";
+        return `
+          <h3>${name}</h3>
+          <ul>
+            <li><strong>Level:</strong> ${level}</li>
+            <li><strong>HP:</strong> ${hp?.value ?? "—"} / ${hp?.max ?? "—"}</li>
+            <li><strong>AC:</strong> ${ac}</li>
+          </ul>
+          <hr>
+        `;
+      }).join("");
 
-    const playerActors = game.actors.filter(actor => actor.hasPlayerOwner);
-    const actorSummaries = playerActors.map(actor => {
-      const name = actor.name ?? "Unnamed";
-      const level = actor.system?.details?.level ?? "—";
-      const hp = actor.system?.attributes?.hp;
-      const ac = actor.system?.attributes?.ac?.value ?? "—";
-
-      const classItem = actor.items.find(i => i.type === "class");
-      const className = classItem?.name ?? "—";
-      const classColor = classColors[className] ?? "#444";
-
-      const nameLine = `<span style="font-weight:bold;">${name}</span> <span style="color:${classColor}; font-weight:bold;">(Level ${level} ${className})</span>`;
-
-      return `
-        <h3>${nameLine}</h3>
-        <ul>
-          <li><strong>HP:</strong> ${hp?.value ?? "—"} / ${hp?.max ?? "—"}</li>
-          <li><strong>AC:</strong> ${ac}</li>
-        </ul>
-        <hr>
+      const updatedContent = `
+        <h2>Review the Characters</h2>
+        <p>This page summarizes key details for each player character.</p>
+        ${actorSummaries}
       `;
-    }).join("");
 
-    const updatedContent = `
-      <h2>Review the Characters</h2>
-      <p>This page summarizes key details for each player character.</p>
-      ${actorSummaries}
-    `;
-
-    await characterPage.update({ "text.content": updatedContent });
+      await characterPage.update({ "text.content": updatedContent });
+    }
+  } catch (err) {
+    console.warn("⚠️ Failed to enhance 'Review the Characters' page:", err);
   }
-} catch (err) {
-  console.warn("⚠️ Failed to enhance 'Review the Characters' page:", err);
-}
+
   ui.notifications.info(`✅ Created '${sessionName}' with Lazy DM pages.`);
 }
 
